@@ -41,6 +41,7 @@ def main(config, resume):
 
     trainer.train()
 
+
 if __name__=='__main__':
     # PARSE THE ARGS
     parser = argparse.ArgumentParser(description='PyTorch Training')

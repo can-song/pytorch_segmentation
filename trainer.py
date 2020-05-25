@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 import time
 import numpy as np
 from torchvision.utils import make_grid
@@ -8,6 +9,7 @@ from base import BaseTrainer, DataPrefetcher
 from utils.helpers import colorize_mask
 from utils.metrics import eval_metrics, AverageMeter
 from tqdm import tqdm
+
 
 class Trainer(BaseTrainer):
     def __init__(self, model, loss, resume, config, train_loader, val_loader=None, train_logger=None, prefetch=True):
@@ -59,6 +61,11 @@ class Trainer(BaseTrainer):
                 assert output[0].size()[1] == self.num_classes 
                 loss = self.loss(output[0], target)
                 loss += self.loss(output[1], target) * 0.4
+                output = output[0]
+            elif self.config['arch']['type'] == 'AUNet':
+                loss = self.loss(output[0], target)
+                for x in output[1:]:
+                    loss += self.loss(F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=True), target)*0.2
                 output = output[0]
             else:
                 assert output.size()[2:] == target.size()[1:]
@@ -134,7 +141,8 @@ class Trainer(BaseTrainer):
                 # LIST OF IMAGE TO VIZ (15 images)
                 if len(val_visual) < 15:
                     target_np = target.data.cpu().numpy()
-                    output_np = output.data.max(1)[1].cpu().numpy()
+                    # output_np = output.data.max(1)[1].cpu().numpy()
+                    output_np = output.data.argmax(1).cpu().numpy()
                     val_visual.append([data[0].data.cpu(), target_np[0], output_np[0]])
 
                 # PRINT INFO

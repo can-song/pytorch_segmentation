@@ -6,10 +6,11 @@ from torch.utils.data import Dataset
 from PIL import Image
 from torchvision import transforms
 from scipy import ndimage
+from skimage import color
 
 class BaseDataSet(Dataset):
     def __init__(self, root, split, mean, std, base_size=None, augment=True, val=False,
-                crop_size=321, scale=True, flip=True, rotate=False, blur=False, return_id=False):
+                crop_size=321, scale=True, flip=True, rotate=False, blur=False, hsv_jitter=False, return_id=False):
         self.root = root
         self.split = split
         self.mean = mean
@@ -22,6 +23,7 @@ class BaseDataSet(Dataset):
             self.flip = flip
             self.rotate = rotate
             self.blur = blur
+            self.hsv_jitter = hsv_jitter
         self.val = val
         self.files = []
         self._set_files()
@@ -52,8 +54,8 @@ class BaseDataSet(Dataset):
 
             # Center Crop
             h, w = label.shape
-            start_h = (h - self.crop_size )// 2
-            start_w = (w - self.crop_size )// 2
+            start_h = (h - self.crop_size) // 2
+            start_w = (w - self.crop_size) // 2
             end_h = start_h + self.crop_size
             end_w = start_w + self.crop_size
             image = image[start_h:end_h, start_w:end_w]
@@ -117,6 +119,15 @@ class BaseDataSet(Dataset):
             ksize = int(3.3 * sigma)
             ksize = ksize + 1 if ksize % 2 == 0 else ksize
             image = cv2.GaussianBlur(image, (ksize, ksize), sigmaX=sigma, sigmaY=sigma, borderType=cv2.BORDER_REFLECT_101)
+
+        if self.hsv_jitter:
+            hsv = color.rgb2hsv(image)
+            v_jitter = random.uniform(0.8, 1.2)
+            s_jitter = random.uniform(0.8, 1.2)
+            hsv[:, :, 1] *= s_jitter
+            hsv[:, :, 2] *= v_jitter
+            image = color.hsv2rgb(hsv)
+
         return image, label
         
     def __len__(self):
@@ -132,7 +143,7 @@ class BaseDataSet(Dataset):
         label = torch.from_numpy(np.array(label, dtype=np.int32)).long()
         image = Image.fromarray(np.uint8(image))
         if self.return_id:
-            return  self.normalize(self.to_tensor(image)), label, image_id
+            return self.normalize(self.to_tensor(image)), label, image_id
         return self.normalize(self.to_tensor(image)), label
 
     def __repr__(self):

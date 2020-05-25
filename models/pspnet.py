@@ -2,11 +2,12 @@ import math
 import torch
 import torch.nn.functional as F
 from torch import nn
-from models import resnet
+# from models import resnet
 from torchvision import models
 from base import BaseModel
 from utils.helpers import initialize_weights, set_trainable
 from itertools import chain
+
 
 class _PSPModule(nn.Module):
     def __init__(self, in_channels, bin_sizes, norm_layer):
@@ -43,7 +44,8 @@ class PSPNet(BaseModel):
         super(PSPNet, self).__init__()
         # TODO: Use synch batchnorm
         norm_layer = nn.BatchNorm2d
-        model = getattr(resnet, backbone)(pretrained, norm_layer=norm_layer, )
+        # model = getattr(resnet, backbone)(pretrained, norm_layer=norm_layer)
+        model = getattr(models, backbone)(pretrained)
         m_out_sz = model.fc.in_features
         self.use_aux = use_aux 
 
@@ -71,7 +73,8 @@ class PSPNet(BaseModel):
         )
 
         initialize_weights(self.master_branch, self.auxiliary_branch)
-        if freeze_bn: self.freeze_bn()
+        if freeze_bn:
+            self.freeze_bn()
         if freeze_backbone: 
             set_trainable([self.initial, self.layer1, self.layer2, self.layer3, self.layer4], False)
 

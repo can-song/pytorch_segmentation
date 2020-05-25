@@ -70,7 +70,7 @@ def get_parent_class(value, dictionary):
                     yield res
 
 class COCO(BaseDataLoader):
-    def __init__(self, data_dir, batch_size, split, crop_size=None, base_size=None, scale=True, num_workers=1, partition = 'CocoStuff164k',
+    def __init__(self, data_dir, batch_size, split, crop_size=None, base_size=None, scale=True, num_workers=1, partition='CocoStuff164k',
                     shuffle=False, flip=False, rotate=False, blur= False, augment=False, val_split= None, return_id=False, val=False):
 
         self.MEAN = [0.43931922, 0.41310471, 0.37480941]
@@ -92,9 +92,12 @@ class COCO(BaseDataLoader):
             'val': val
         }
 
-        if partition == 'CocoStuff10k': self.dataset = CocoStuff10k(**kwargs)
-        elif partition == 'CocoStuff164k': self.dataset = CocoStuff164k(**kwargs)
-        else: raise ValueError(f"Please choose either CocoStuff10k / CocoStuff164k")
+        if partition == 'CocoStuff10k':
+            self.dataset = CocoStuff10k(**kwargs)
+        elif partition == 'CocoStuff164k':
+            self.dataset = CocoStuff164k(**kwargs)
+        else:
+            raise ValueError(f"Please choose either CocoStuff10k / CocoStuff164k")
 
         super(COCO, self).__init__(self.dataset, batch_size, shuffle, num_workers, val_split)
 

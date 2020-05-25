@@ -15,6 +15,7 @@ def get_instance(module, name, config, *args):
     # GET THE CORRESPONDING CLASS / FCT 
     return getattr(module, config[name]['type'])(*args, **config[name]['args'])
 
+
 class BaseTrainer:
     def __init__(self, model, loss, resume, config, train_loader, val_loader=None, train_logger=None):
         self.model = model
@@ -142,7 +143,8 @@ class BaseTrainer:
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
             'monitor_best': self.mnt_best,
-            'config': self.config
+            'config': self.config,
+            'train_logger': self.train_logger
         }
         filename = os.path.join(self.checkpoint_dir, f'checkpoint-epoch{epoch}.pth')
         self.logger.info(f'\nSaving a checkpoint: {filename} ...') 

@@ -1,54 +1,54 @@
 {
-    "name": "AUPNet",
+    "name": "PSPNet",
     "n_gpu": 1,
-    "use_synch_bn": false,
+    "use_synch_bn": true,
 
     "arch": {
-        "type": "AUNet",
+        "type": "PSPNet",
         "args": {
             "backbone": "resnet50",
             "freeze_bn": false,
-            "freeze_backbone": false,
-            "pretrained": true
+            "freeze_backbone": false
         }
     },
 
     "train_loader": {
-        "type": "Photovoltaic",
+        "type": "VOC",
         "args":{
-            "data_dir": "D:/data/guangfu",
-            "batch_size": 4,
-            "base_size": 768,
-            "crop_size": 256,
+            "data_dir": "data/VOCtrainval_11-May-2012",
+            "batch_size": 8,
+            "base_size": 400,
+            "crop_size": 380,
             "augment": true,
             "shuffle": true,
             "scale": true,
             "flip": true,
             "rotate": true,
-            "blur": true,
-            "hsv_jitter": true,
-            "split": "train",
-            "num_workers": 0
+            "blur": false,
+            "split": "train_aug",
+            "num_workers": 8
         }
     },
 
     "val_loader": {
-        "type": "Photovoltaic",
+        "type": "VOC",
         "args":{
-            "data_dir": "D:/data/guangfu",
-            "batch_size": 1,
-            "crop_size": 768,
+            "data_dir": "data/VOCtrainval_11-May-2012",
+            "batch_size": 8,
+            "crop_size": 480,
             "val": true,
             "split": "val",
-            "num_workers": 0
+            "num_workers": 4
         }
     },
 
     "optimizer": {
-        "type": "Adam",
+        "type": "SGD",
         "differential_lr": true,
         "args":{
-            "lr": 0.01
+            "lr": 0.01,
+            "weight_decay": 1e-4,
+            "momentum": 0.9
         }
     },
 
@@ -62,16 +62,16 @@
     "trainer": {
         "epochs": 80,
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 10,
   
         "monitor": "max Mean_IoU",
-        "early_stop": 100,
+        "early_stop": 10,
         
         "tensorboard": true,
         "log_dir": "saved/runs",
         "log_per_iter": 20,
 
         "val": true,
-        "val_per_epochs": 1
+        "val_per_epochs": 5
     }
 }

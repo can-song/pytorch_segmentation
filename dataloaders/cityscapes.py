@@ -58,7 +58,7 @@ class CityScapesDataset(BaseDataSet):
 
 class CityScapes(BaseDataLoader):
     def __init__(self, data_dir, batch_size, split, crop_size=None, base_size=None, scale=True, num_workers=1, mode='fine', val=False,
-                    shuffle=False, flip=False, rotate=False, blur= False, augment=False, val_split= None, return_id=False):
+                    shuffle=False, flip=False, rotate=False, blur=False, augment=False, val_split= None, return_id=False):
 
         self.MEAN = [0.28689529, 0.32513294, 0.28389176]
         self.STD = [0.17613647, 0.18099176, 0.17772235]
